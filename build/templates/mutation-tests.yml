@@ -1,0 +1,52 @@
+jobs:
+  - job: MutationTests
+    displayName: 'Run mutation tests'
+    pool:
+      vmImage: '$(Vm.Image)'
+    steps:
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download build artifacts'
+        inputs:
+          artifact: 'Build'
+          path: '$(Build.SourcesDirectory)'
+
+      - task: UseDotNet@2
+        displayName: 'Import .NET SDK ($(DotNet.Sdk.VersionBC))'
+        inputs:
+          packageType: 'sdk'
+          version: '$(DotNet.Sdk.VersionBC)'
+
+      - task: UseDotNet@2
+        displayName: 'Import .NET Core SDK ($(DotNet.Sdk.Version))'
+        inputs:
+          packageType: 'sdk'
+          version: '$(DotNet.Sdk.Version)'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Install dotnet-stryker'
+        inputs:
+          command: custom
+          custom: tool
+          arguments: install dotnet-stryker --tool-path $(Agent.BuildDirectory)/tools
+
+      - task: Powershell@2
+        displayName: 'Run dotnet-stryker'
+        inputs:
+          workingDirectory: ./src/
+          targetType: 'inline'
+          pwsh: true
+          script: $(Agent.BuildDirectory)/tools/dotnet-stryker --test-project '$(Project).Unit.Tests/$(Project).Unit.Tests.csproj --config-file ./build/config/stryker.config.json'
+
+      - task: CopyFiles@2
+        condition: always()
+        displayName: 'Copy mutation artifacts'
+        inputs:
+          contents: '**/mutation-report.html'
+          targetFolder: '$(Pipeline.Workspace)/mutation'
+      
+      - task: PublishPipelineArtifact@0
+        condition: always()
+        displayName: 'Publish mutation artifacts'
+        inputs:
+          targetPath: '$(Pipeline.Workspace)/mutation'
+          artifactName: Mutation

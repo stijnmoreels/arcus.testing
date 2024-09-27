@@ -1,0 +1,10 @@
+{
+  "stryker-config": {
+    "ignore-methods": [
+      "*Log",
+      "Console.Write*",
+      "*Exception.ctor",
+      "ToString"
+    ]
+  }
+}
