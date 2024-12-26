@@ -28,4 +28,40 @@ namespace Microsoft.Extensions.Logging
             return builder.AddProvider(provider);
         }
     }
+
+    /// <summary>
+    /// Represents an <see cref="ILoggerProvider"/> implementation to provide <see cref="XunitTestLogger"/> instances.
+    /// </summary>
+    [ProviderAlias("Xunit")]
+    public sealed class XunitTestLoggerProvider : ILoggerProvider
+    {
+        private readonly ITestOutputHelper _outputWriter;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestLoggerProvider" /> class.
+        /// </summary>
+        public XunitTestLoggerProvider(ITestOutputHelper outputWriter)
+        {
+            ArgumentNullException.ThrowIfNull(outputWriter);
+            _outputWriter = outputWriter;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="T:Microsoft.Extensions.Logging.ILogger" /> instance.
+        /// </summary>
+        /// <param name="categoryName">The category name for messages produced by the logger.</param>
+        /// <returns>The instance of <see cref="T:Microsoft.Extensions.Logging.ILogger" /> that was created.</returns>
+        public ILogger CreateLogger(string categoryName)
+        {
+            var logger = new XunitTestLogger(_outputWriter);
+            return logger;
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+        }
+    }
 }

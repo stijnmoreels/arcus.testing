@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit.Abstractions;
 
 namespace Arcus.Testing
@@ -9,6 +11,7 @@ namespace Arcus.Testing
     /// </summary>
     public class XunitTestLogger : ILogger
     {
+        private readonly string _name;
         private readonly ITestOutputHelper _testOutput;
 
         /// <summary>
@@ -17,11 +20,16 @@ namespace Arcus.Testing
         /// <param name="testOutput">The xUnit test output logger.</param>
         public XunitTestLogger(ITestOutputHelper testOutput)
         {
-            if (testOutput is null)
-            {
-                throw new ArgumentNullException(nameof(testOutput));
-            }
+            ArgumentNullException.ThrowIfNull(testOutput);
+            _testOutput = testOutput;
+        }
 
+        internal XunitTestLogger(string name, ITestOutputHelper testOutput)
+        {
+            ArgumentNullException.ThrowIfNull(name);
+            ArgumentNullException.ThrowIfNull(testOutput);
+
+            _name = name;
             _testOutput = testOutput;
         }
 
@@ -33,15 +41,21 @@ namespace Arcus.Testing
         /// <param name="formatter">Function to create a <c>string</c> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            var builder = new StringBuilder();
+            if (eventId != default)
+            {
+                builder.AppendFormat("[{0}] ", eventId);
+            }
+
             string message = formatter(state, exception);
-            if (exception is null)
+            builder.AppendFormat("{0:s} {1} > {2}", DateTimeOffset.UtcNow, logLevel, message);
+
+            if (exception is not null)
             {
-                _testOutput.WriteLine("{0:s} {1} > {2}", DateTimeOffset.UtcNow, logLevel, message);
+                builder.AppendFormat("{0}", exception);
             }
-            else
-            {
-                _testOutput.WriteLine("{0:s} {1} > {2}: {3}", DateTimeOffset.UtcNow, logLevel, message, exception);
-            }
+
+            _testOutput.WriteLine(builder.ToString());
         }
 
         /// <summary>
