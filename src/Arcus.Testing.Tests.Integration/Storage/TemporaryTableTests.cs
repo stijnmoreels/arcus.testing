@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Arcus.Testing.Tests.Integration.Storage.Fixture;
 using Azure.Data.Tables;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Integration.Storage
 {
@@ -105,7 +104,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
 
             TableClient client = await context.WhenTableAvailableAsync();
             TableEntity createdBefore = await context.WhenTableEntityAvailableAsync(client);
-            
+
             TemporaryTable temp = await CreateTempTableAsync(client, options =>
             {
                 options.OnTeardown.CleanAllEntities();

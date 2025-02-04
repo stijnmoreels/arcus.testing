@@ -21,10 +21,10 @@ namespace Arcus.Testing.Tests.Integration.Core
         private static readonly Faker Bogus = new();
         private readonly DisposableCollection _disposables = new(NullLogger.Instance);
 
-        public static IEnumerable<object[]> CustomConfigs => new[]
+        public static IEnumerable<TheoryDataRow<Func<Action<TestConfigOptions>, TestConfig>>> CustomConfigs => new[]
         {
-            new object[] { (Func<Action<TestConfigOptions>, TestConfig>)(TestConfig.Create) },
-            new object[] { (Func<Action<TestConfigOptions>, TestConfig>)(configureOptions => new CustomTestConfig(configureOptions)) },
+            new TheoryDataRow<Func<Action<TestConfigOptions>, TestConfig>>(TestConfig.Create),
+            new TheoryDataRow<Func<Action<TestConfigOptions>, TestConfig>>(configureOptions => new CustomTestConfig(configureOptions)),
         };
 
         [Theory]
@@ -55,8 +55,8 @@ namespace Arcus.Testing.Tests.Integration.Core
         private void AddLocalValueToCustomMain(string fileName, string key, string value, string newMainFile)
         {
             _disposables.Add(TemporaryFile.CreateAt(
-                CurrentDirectory.Path, 
-                fileName, 
+                CurrentDirectory.Path,
+                fileName,
                 Encoding.UTF8.GetBytes($"{{ \"{key}\": \"{value}\" }}")));
 
             AddTokenToCustomMain(key, newMainFile);
@@ -122,8 +122,8 @@ namespace Arcus.Testing.Tests.Integration.Core
         private void AddLocalValueToDefaultMain(string fileName, string key, string value)
         {
             _disposables.Add(TemporaryFile.CreateAt(
-                CurrentDirectory.Path, 
-                fileName, 
+                CurrentDirectory.Path,
+                fileName,
                 Encoding.UTF8.GetBytes($"{{ \"{key}\": \"{value}\" }}")));
 
             AddTokenToDefaultMain(key);
@@ -227,12 +227,12 @@ namespace Arcus.Testing.Tests.Integration.Core
             TestConfig.Create();
         }
 
-        public Task InitializeAsync()
+        public ValueTask InitializeAsync()
         {
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             await _disposables.DisposeAsync();
         }

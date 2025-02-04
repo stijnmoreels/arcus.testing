@@ -7,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Unit.Logging
 {
@@ -149,7 +148,7 @@ namespace Arcus.Testing.Tests.Unit.Logging
         {
             // Arrange
             var builder = new HostBuilder();
-            
+
             // Act
             builder.ConfigureLogging(logging => logging.AddXunitTestLogging(outputWriter: null));
 

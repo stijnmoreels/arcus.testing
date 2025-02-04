@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace Arcus.Testing.Tests.Unit.Logging
 {
@@ -9,6 +9,16 @@ namespace Arcus.Testing.Tests.Unit.Logging
         private readonly Collection<string> _contents = new();
 
         public IEnumerable<string> Contents => _contents;
+
+        public void Write(string message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Write(string format, params object[] args)
+        {
+            throw new System.NotImplementedException();
+        }
 
         public void WriteLine(string message)
         {
@@ -19,5 +29,7 @@ namespace Arcus.Testing.Tests.Unit.Logging
         {
             _contents.Add(string.Format(format, args));
         }
+
+        public string Output { get; }
     }
 }

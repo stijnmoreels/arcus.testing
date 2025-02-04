@@ -6,7 +6,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Integration.Storage
 {
@@ -53,7 +52,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             BsonValue id = await context.WhenDocumentAvailableAsync(collectionName, original);
 
             Product replacement = CreateProduct();
-            replacement.Id = (ObjectId)id;
+            replacement.Id = (ObjectId) id;
 
             TemporaryMongoDbDocument temp = await WhenTempDocumentCreatedAsync(collectionName, replacement);
             await context.ShouldStoreDocumentAsync<Product>(collectionName, id, stored => AssertProduct(replacement, stored));
@@ -113,7 +112,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             BsonValue id = await context.WhenDocumentAvailableAsync(collectionName, original);
 
             var replacement = DocWithStringId.Generate();
-            replacement.Id = (string)id;
+            replacement.Id = (string) id;
 
             TemporaryMongoDbDocument temp = await WhenTempDocumentCreatedAsync(collectionName, replacement);
             await context.ShouldStoreDocumentAsync<DocWithStringId>(collectionName, id, stored => Assert.Equal(replacement.Name, stored.Name));

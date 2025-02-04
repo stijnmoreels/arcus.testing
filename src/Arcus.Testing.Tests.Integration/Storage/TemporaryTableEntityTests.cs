@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Arcus.Testing.Tests.Integration.Storage.Fixture;
 using Azure.Data.Tables;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Integration.Storage
 {

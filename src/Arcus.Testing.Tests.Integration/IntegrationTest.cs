@@ -1,7 +1,7 @@
 ﻿using Arcus.Testing.Tests.Integration.Configuration;
 using Bogus;
 using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace Arcus.Testing.Tests.Integration
 {

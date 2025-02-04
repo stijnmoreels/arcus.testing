@@ -5,7 +5,6 @@ using Bogus;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Integration.Storage
 {
@@ -114,7 +113,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             // Assert
             await context.ShouldNotStoreDocumentAsync<Shipment>(collectionName, matchedId);
             await context.ShouldStoreDocumentAsync<Shipment>(collectionName, unmatchedId);
-            
+
             await collection.DisposeAsync();
             await context.ShouldStoreDocumentAsync<Shipment>(collectionName, unmatchedId);
         }

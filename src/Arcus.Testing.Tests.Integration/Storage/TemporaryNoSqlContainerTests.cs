@@ -6,7 +6,6 @@ using Bogus;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Integration.Storage
 {
@@ -182,7 +181,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
 
             string containerName = await WhenContainerAlreadyAvailableAsync(context);
             Ship createdBefore = await context.WhenItemAvailableAsync(containerName, CreateShip("before"));
-            
+
             TemporaryNoSqlContainer container = await WhenTempContainerCreatedAsync(containerName);
             container.OnTeardown.CleanAllItems();
             await context.ShouldStoreItemAsync(containerName, createdBefore);
@@ -215,7 +214,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             string containerName,
             Action<TemporaryNoSqlContainerOptions> configureOptions = null)
         {
-            var container = 
+            var container =
                 configureOptions is null
                     ? await TemporaryNoSqlContainer.CreateIfNotExistsAsync(NoSql.ResourceId, NoSql.DatabaseName, containerName, PartitionKeyPaths.Single(), Logger)
                     : await TemporaryNoSqlContainer.CreateIfNotExistsAsync(NoSql.ResourceId, NoSql.DatabaseName, containerName, PartitionKeyPaths.Single(), Logger, configureOptions);

@@ -6,7 +6,6 @@ using Bogus;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Integration.Storage
 {
@@ -100,7 +99,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             item.Id = null;
 
             string containerName = await context.WhenContainerNameAvailableAsync(item.PartitionKeyPath);
-            
+
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => WhenTempItemCreatedAsync(context, containerName, item));

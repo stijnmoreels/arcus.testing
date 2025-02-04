@@ -1,6 +1,6 @@
 ﻿using System;
 using Arcus.Testing;
-using Xunit.Abstractions;
+using Xunit;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.Logging

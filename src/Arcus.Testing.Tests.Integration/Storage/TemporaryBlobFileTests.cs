@@ -2,9 +2,7 @@
 using System.Threading.Tasks;
 using Arcus.Testing.Tests.Integration.Storage.Fixture;
 using Azure.Storage.Blobs;
-using Microsoft.Extensions.Options;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Integration.Storage
 {
@@ -92,7 +90,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             await using var context = await GivenBlobStorageAsync();
 
             BlobContainerClient containerClient = await context.WhenBlobContainerAvailableAsync();
-            
+
             BinaryData originalContent = context.CreateBlobContent();
             BlobClient existingBlob = await context.WhenBlobAvailableAsync(containerClient, blobContent: originalContent);
             BinaryData newContent = context.CreateBlobContent();
@@ -165,7 +163,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             blobContent ??= BinaryData.FromBytes(Bogus.Random.Bytes(100));
 
             TemporaryBlobFile temp = configureOptions is null
-                ? Bogus.Random.Bool() 
+                ? Bogus.Random.Bool()
                     ? await TemporaryBlobFile.UploadIfNotExistsAsync(client.Uri, blobName, blobContent, Logger)
                     : await TemporaryBlobFile.UploadIfNotExistsAsync(client.GetBlobClient(blobName), blobContent, Logger)
                 : Bogus.Random.Bool()

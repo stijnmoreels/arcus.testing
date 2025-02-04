@@ -5,7 +5,6 @@ using Azure.ResourceManager.DataFactory;
 using Bogus;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Unit.Integration.DataFactory
 {

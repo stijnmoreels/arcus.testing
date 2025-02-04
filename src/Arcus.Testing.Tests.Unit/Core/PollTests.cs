@@ -118,8 +118,8 @@ namespace Arcus.Testing.Tests.Unit.Core
                           .Until(AlwaysFalse)
                           .Until(AlwaysTrue)
                           .FailWith(expected), errorParts: expected);
-            
-            await FailsByResultAsync(async () => 
+
+            await FailsByResultAsync(async () =>
                 await Poll.Target<object, TestPollException>(AlwaysSucceedsResultAsync)
                           .LowestTimeFrame()
                           .Until(AlwaysTrue)
@@ -217,7 +217,7 @@ namespace Arcus.Testing.Tests.Unit.Core
             var exception = await Assert.ThrowsAsync<TimeoutException>(pollAsync);
             Assert.Contains(nameof(Poll), exception.Message);
 
-            var parts = errorParts.Length == 0 ? new[] { "not succeed", "time frame" } : errorParts;
+            var parts = errorParts.Length == 0 ? new[] { "Poll:", "interval", "timeout" } : errorParts;
             Assert.All(parts, part => Assert.Contains(part, exception.Message));
 
             Assert.NotNull(exception.InnerException);

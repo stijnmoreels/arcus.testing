@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Bogus;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Arcus.Testing.Tests.Unit.Logging
 {
@@ -50,11 +49,23 @@ namespace Arcus.Testing.Tests.Unit.Logging
         private class SpyTestWriter : ITestOutputHelper
         {
             public List<string> Messages { get; } = new List<string>();
+            public void Write(string message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Write(string format, params object[] args)
+            {
+                throw new NotImplementedException();
+            }
+
             public void WriteLine(string message) => Messages.Add(message);
             public void WriteLine(string format, params object[] args)
             {
                 Messages.Add(string.Format(format, args));
             }
+
+            public string Output { get; }
         }
     }
 }
