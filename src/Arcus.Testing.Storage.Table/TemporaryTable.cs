@@ -453,7 +453,7 @@ namespace Arcus.Testing
 
             if (exists)
             {
-                logger.LogDebug("[Test:Setup] Use already existing Azure Table '{TableName}' in account '{AccountName}'", tableName, serviceClient.AccountName);
+                logger.LogDebug(TestEventIds.OnSetup, "Use already existing Azure Table '{TableName}' in account '{AccountName}'", tableName, serviceClient.AccountName);
             }
             else
             {
@@ -502,7 +502,7 @@ namespace Arcus.Testing
                         if (response.IsError && response.Status != NotFound)
                         {
                             throw new RequestFailedException(
-                                $"[Test:Setup] Failed to delete Azure Table entity (rowKey: '{item.RowKey}', partitionKey: '{item.PartitionKey}') from table {tableClient.AccountName}/{tableClient.Name}' " +
+                                $"{TestEventIds.OnSetup} Failed to delete Azure Table entity (rowKey: '{item.RowKey}', partitionKey: '{item.PartitionKey}') from table {tableClient.AccountName}/{tableClient.Name}' " +
                                 $"since the delete operation responded with a failure: {response.Status} {(HttpStatusCode) response.Status}",
                                 new RequestFailedException(response));
                         }

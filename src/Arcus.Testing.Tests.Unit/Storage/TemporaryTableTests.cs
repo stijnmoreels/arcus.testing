@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Resources;
 using System.Threading.Tasks;
 using Azure.Data.Tables;
 using Bogus;
@@ -13,6 +14,14 @@ namespace Arcus.Testing.Tests.Unit.Storage
     public class TemporaryTableTests
     {
         private static readonly Faker Bogus = new();
+
+        [Fact]
+        public void Test()
+        {
+            using var writer = new ResourceWriter("C:\\dev\\github.com\\arcus.testing\\eventids.resources");
+            writer.AddResource("OnSetup", 1500);
+            writer.AddResource("OnTeardown", 2000);
+        }
 
         [Fact]
         public async Task CreateTempTable_WithoutClient_Fails()

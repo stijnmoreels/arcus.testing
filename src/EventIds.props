@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <OnSetup>1500</OnSetup>
+    <OnTeardown>2000</OnTeardown>
+  </PropertyGroup>
+</Project>
