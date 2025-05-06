@@ -316,8 +316,8 @@ namespace Arcus.Testing.Tests.Unit.Assert_
         {
             // Arrange
             string fileNamePrefix = "json.ignored.order.objects.in.array.sample";
-            string actual = _resourceDir.ReadFileTextByName(fileNamePrefix + ".actual.json");
-            string expected = _resourceDir.ReadFileTextByName(fileNamePrefix + ".expected.json");
+            string actual = _resourceDir.ReadFileContents(fileNamePrefix + ".actual.json").ToString();
+            string expected = _resourceDir.ReadFileContents(fileNamePrefix + ".expected.json").ToString();
 
             // Act / Assert
             EqualJson(expected, actual);

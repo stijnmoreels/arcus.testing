@@ -167,23 +167,20 @@ using Arcus.Testing;
 // Path: /bin/net8.0/
 ResourceDirectory root = ResourceDirectory.CurrentDirectory;
 
-string txt = root.ReadFileTextByName("file.txt");
-byte[] img = root.ReadFileBytesByName("file.png");
+BinaryData txt = root.ReadFileContents("file.txt");
 
-// Path: /bin/net8.0/resources
+// Path: /bin/net8.0/resources/component
 ResourceDirectory sub = 
     root.WithSubDirectory("resources")
         .WithSubDirectory("component");
 
-string txt = sub.ReadFileTextByName("file.txt");
-byte[] img = sub.ReadFileBytesByPattern("*.png");
-
+BinaryData txt = sub.ReadFileContents("file.txt");
 
 // FileNotFoundException: 
-//    Cannot retrieve 'file.txt' file contents in test resource directory 'resources' because it does not exists,
+//    Cannot retrieve 'file.txt' file contents in test resource directory 'component' because it does not exists,
 //    make sure that the test resource files are always copied to the output before loading their contents.
-//    File path: /bin/net8.0/resources/file.txt
-//    Resource directory: /bin/net8.0/resources
+//    File path: /bin/net8.0/resources/component/file.txt
+//    Resource directory: /bin/net8.0/resources/component
 ```
 
 > 🚀 The `ResourceDirectory` overrides the `/` operator, which points to the `.WithSubDirectory(...)` call, which means you can create complex paths with ease:

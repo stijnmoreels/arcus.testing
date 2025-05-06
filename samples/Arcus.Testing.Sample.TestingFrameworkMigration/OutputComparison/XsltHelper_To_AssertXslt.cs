@@ -1,5 +1,4 @@
-﻿using Codit.Testing.Xslt;
-using Xunit;
+﻿using Xunit;
 using Xunit.Abstractions;
 
 namespace Arcus.Testing.Sample.TestingFrameworkMigration.OutputComparison
@@ -37,8 +36,8 @@ namespace Arcus.Testing.Sample.TestingFrameworkMigration.OutputComparison
         public void TestXslt_XmlToXml_PassWithArcus()
         {
             // Arrange
-            string xslt = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToXml.xslt");
-            string input = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToXml_Pass_input.xml");
+            string xslt = ScenarioFiles.ReadFileContents("TestXslt_XmlToXml.xslt").ToString();
+            string input = ScenarioFiles.ReadFileContents("TestXslt_XmlToXml_Pass_input.xml").ToString();
 
             // Act
             string actual = AssertXslt.TransformToXml(xslt, input);
@@ -77,14 +76,14 @@ namespace Arcus.Testing.Sample.TestingFrameworkMigration.OutputComparison
         public void TestXslt_XmlToJson_PassWithArcus()
         {
             // Arrange
-            string xslt = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToJson.xslt");
-            string input = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToJson_Pass_input.xml");
+            string xslt = ScenarioFiles.ReadFileContents("TestXslt_XmlToJson.xslt").ToString();
+            string input = ScenarioFiles.ReadFileContents("TestXslt_XmlToJson_Pass_input.xml").ToString();
 
             // Act
             string actual = AssertXslt.TransformToJson(xslt, input);
 
             // Assert
-            string expected = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToJson_Pass_expected.json");
+            string expected = ScenarioFiles.ReadFileContents("TestXslt_XmlToJson_Pass_expected.json").ToString();
             AssertJson.Equal(expected, actual);
         }
 
@@ -114,14 +113,14 @@ namespace Arcus.Testing.Sample.TestingFrameworkMigration.OutputComparison
         public void TestXslt_XmlToCsv_PassWithArcus()
         {
             // Arrange
-            string xlst = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToCsv.xslt");
-            string input = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToCsv_Pass_input.xml");
+            string xlst = ScenarioFiles.ReadFileContents("TestXslt_XmlToCsv.xslt").ToString();
+            string input = ScenarioFiles.ReadFileContents("TestXslt_XmlToCsv_Pass_input.xml").ToString();
 
             // Act
             string actual = AssertXslt.TransformToCsv(xlst, input);
 
             // Assert
-            string expected = ScenarioFiles.ReadFileTextByName("TestXslt_XmlToCsv_Pass_expected.csv");
+            string expected = ScenarioFiles.ReadFileContents("TestXslt_XmlToCsv_Pass_expected.csv").ToString();
             AssertCsv.Equal(expected, actual);
         }
     }
