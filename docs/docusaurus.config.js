@@ -108,19 +108,19 @@ module.exports = {
           items: [
             {
               label: 'Storage account',
-              to: 'Features/Azure/storage/storage-account'
+              to: 'Features/Azure/Storage/storage-account'
             },
             {
               label: 'Cosmos DB',
-              to: 'Features/Azure/storage/cosmos'
+              to: 'Features/Azure/Storage/cosmos'
             },
             {
               label: 'Service Bus',
-              to: 'Features/Azure/messaging/servicebus'
+              to: 'Features/Azure/Messaging/servicebus'
             },
             {
               label: 'Data Factory',
-              to: 'Features/Azure/integration/data-factory'
+              to: 'Features/Azure/Integration/data-factory'
             }
           ]
         },
