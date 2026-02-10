@@ -91,15 +91,15 @@ module.exports = {
           items: [
             {
               label: 'Core infrastructure',
-              to: '/features/core'
+              to: 'Features/core'
             },
             {
               label: 'Assertions',
-              to: '/features/assertion'
+              to: 'Features/assertion'
             },
             {
               label: 'Logging',
-              to: '/features/logging'
+              to: 'Features/logging'
             }
           ]
         },
@@ -108,19 +108,19 @@ module.exports = {
           items: [
             {
               label: 'Storage account',
-              to: '/features/azure/storage/storage-account'
+              to: 'Features/azure/storage/storage-account'
             },
             {
               label: 'Cosmos DB',
-              to: '/features/azure/storage/cosmos'
+              to: 'Features/azure/storage/cosmos'
             },
             {
               label: 'Service Bus',
-              to: '/features/azure/messaging/servicebus'
+              to: 'Features/azure/messaging/servicebus'
             },
             {
               label: 'Data Factory',
-              to: '/features/azure/integration/data-factory'
+              to: 'Features/azure/integration/data-factory'
             }
           ]
         },
@@ -129,11 +129,11 @@ module.exports = {
           items: [
             {
               label: 'Migrate Testing Framework to v1',
-              to: '/guidance/migrate-from-testing-framework-to-arcus-testing-v1.0'
+              to: 'Guidance/migrate-from-testing-framework-to-arcus-testing-v1.0'
             },
             {
               label: 'Migrate v1 to v2',
-              to: '/guidance/migrate-from-v1-to-v2'
+              to: 'Guidance/migrate-from-v1-to-v2'
             }
           ]
         }
