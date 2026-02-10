@@ -14,13 +14,36 @@ module.exports = {
   themeConfig: {
     image: 'img/arcus.jpg',
     navbar: {
-      title: 'Testing',
+      title: '',
       logo: {
         alt: 'Arcus',
         src: 'img/arcus.png',
         srcDark: 'img/arcus_for_dark.png',
       },
       items: [
+        {
+          type: 'dropdown',
+          label: 'Arcus Testing',
+          position: 'left',
+          items: [
+            {
+              label: 'Arcus Messaging',
+              href: 'https://messaging.arcus-azure.net/',
+            },
+            {
+              label: 'Arcus Observability',
+              href: 'https://observability.arcus-azure.net/'
+            },
+            {
+              label: 'Arcus Security',
+              href: 'https://security.arcus-azure.net/'
+            },
+            {
+              label: 'Arcus Scripting',
+              href: 'https://scripting.arcus-azure.net/'
+            }
+          ]
+        },
         {
           type: 'docsVersionDropdown',
 
@@ -50,11 +73,70 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Arcus Azure Github',
-              href: 'https://github.com/arcus-azure',
+              label: 'Github',
+              href: 'https://github.com/arcus-azure/arcus.testing',
             },
-          ],
+            {
+              label: 'Contribution guide',
+              href: 'https://github.com/arcus-azure/arcus.testing/blob/main/CONTRIBUTING.md'
+            },
+            {
+              label: 'Create GitHub issue',
+              href: 'https://github.com/arcus-azure/arcus.testing/issues/new/choose'
+            }
+          ]
         },
+        {
+          title: 'Tech-independent',
+          items: [
+            {
+              label: 'Core infrastructure',
+              href: '/features/core'
+            },
+            {
+              label: 'Assertions',
+              href: '/features/assertion'
+            },
+            {
+              label: 'Logging',
+              href: '/features/logging'
+            }
+          ]
+        },
+        {
+          title: 'Azure',
+          items: [
+            {
+              label: 'Storage account',
+              href: '/features/azure/storage/storage-account'
+            },
+            {
+              label: 'Cosmos DB',
+              href: '/features/azure/storage/cosmos'
+            },
+            {
+              label: 'Service Bus',
+              href: '/features/azure/messaging/servicebus'
+            },
+            {
+              label: 'Data Factory',
+              href: '/features/azure/integration/data-factory'
+            }
+          ]
+        },
+        {
+          title: 'Guidance',
+          items: [
+            {
+              label: 'Migrate Testing Framework to v1',
+              href: '/guidance/migrate-from-testing-framework-to-arcus-testing-v1.0'
+            },
+            {
+              label: 'Migrate v1 to v2',
+              href: '/guidance/migrate-from-v1-to-v2'
+            }
+          ]
+        }
       ],
       copyright: `Copyright © ${new Date().getFullYear()}, Arcus - Testing maintained by arcus-azure`,
     },
