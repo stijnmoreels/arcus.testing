@@ -129,8 +129,12 @@ module.exports = {
           ]
         },
         {
-          title: 'Guidance',
+          title: 'Support',
           items: [
+            {
+              label: 'Getting started',
+              to: 'getting-started'
+            },
             {
               label: 'Migrate Testing Framework to v1',
               to: 'Guidance/migrate-from-testing-framework-to-arcus-testing-v1.0'
