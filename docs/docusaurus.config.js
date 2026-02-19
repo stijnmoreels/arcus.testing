@@ -81,9 +81,13 @@ module.exports = {
               href: 'https://github.com/arcus-azure/arcus.testing/blob/main/CONTRIBUTING.md'
             },
             {
-              label: 'Create GitHub issue',
+              label: 'Report an issue',
               href: 'https://github.com/arcus-azure/arcus.testing/issues/new/choose'
-            }
+            },
+            {
+              label: 'Discuss an idea',
+              href: 'https://github.com/arcus-azure/arcus.testing/discussions/new/choose'
+            },
           ]
         },
         {
