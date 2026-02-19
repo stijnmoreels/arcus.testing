@@ -142,7 +142,7 @@ module.exports = {
           ]
         }
       ],
-      copyright: `Copyright © ${new Date().getFullYear()}, Arcus - Testing maintained by arcus-azure`,
+      copyright: `Copyright © ${new Date().getFullYear()}, Arcus - Testing maintained by Codit`,
     },
     prism: {
       theme: lightCodeTheme,
