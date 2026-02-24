@@ -134,7 +134,7 @@ namespace Arcus.Testing
         /// <param name="blobName">The name of the blob to upload.</param>
         /// <param name="blobContent">The content of the blob to upload.</param>
         /// <param name="logger">The logger to write diagnostic messages during the upload process.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">The optional token to propagate notifications that the operation should be cancelled.</param>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="blobContainerUri"/> or the <paramref name="blobName"/> is blank.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="blobContainerUri"/> or the <paramref name="blobContent"/> is <c>null</c>.</exception>
         /// <exception cref="RequestFailedException">Thrown when the interaction with Azure failed.</exception>
