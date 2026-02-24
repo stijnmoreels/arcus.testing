@@ -5,7 +5,6 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <NoWarn>ARCUS;CA2007<!-- unit tests do not have a synchronization context, only sync 'hidden' as async --></NoWarn>
-    <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
   </PropertyGroup>
 
   <ItemGroup>
