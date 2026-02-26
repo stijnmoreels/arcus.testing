@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Threading.Tasks;
 using Arcus.Testing.Tests.Integration.Messaging.Configuration;
 using Azure;
@@ -23,31 +24,35 @@ namespace Arcus.Testing.Tests.Integration.Messaging.Fixture
         private readonly EventHubsNamespaceResource _namespace;
         private readonly Collection<string> _eventHubNames = [];
         private readonly ILogger _logger;
+        private readonly CancellationToken _cancellationToken;
 
         private static readonly Faker Bogus = new();
 
         private EventHubsTestContext(
             EventHubsNamespaceResource @namespace,
-            ILogger logger)
+            ILogger logger,
+            CancellationToken cancellationToken)
         {
             _namespace = @namespace;
             _logger = logger;
+            _cancellationToken = cancellationToken;
         }
 
         /// <summary>
         /// Creates an <see cref="EventHubsTestContext"/> based on the current test <paramref name="config"/>.
         /// </summary>
-        public static async Task<EventHubsTestContext> GivenAsync(TestConfig config, ILogger logger)
+        public static async Task<EventHubsTestContext> GivenAsync(TestConfig config, ILogger logger, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             EventHubsConfig eventHubs = config.GetEventHubs();
 
             var credential = new DefaultAzureCredential();
             var arm = new ArmClient(credential);
             EventHubsNamespaceResource resource =
                 await arm.GetEventHubsNamespaceResource(eventHubs.NamespaceResourceId)
-                         .GetAsync();
+                         .GetAsync(cancellationToken);
 
-            return new EventHubsTestContext(resource, logger);
+            return new EventHubsTestContext(resource, logger, cancellationToken);
         }
 
         /// <summary>
@@ -69,7 +74,8 @@ namespace Arcus.Testing.Tests.Integration.Messaging.Fixture
                     CleanupPolicy = CleanupPolicyRetentionDescription.Delete,
                     RetentionTimeInHours = 1
                 }
-            });
+
+            }, _cancellationToken);
 
             return eventHubName;
         }
@@ -101,7 +107,7 @@ namespace Arcus.Testing.Tests.Integration.Messaging.Fixture
             };
 
             _logger.LogDebug("[Test:Setup] Send event '{MessageId}' on Azure EventHubs hub '{EventHubName}' in namespace '{Namespace}'", ev.MessageId, eventHubName, _namespace.Id.Name);
-            await producerClient.SendAsync([ev], new SendEventOptions() { PartitionId = partitionId });
+            await producerClient.SendAsync([ev], new SendEventOptions() { PartitionId = partitionId }, _cancellationToken);
 
             return ev;
         }
@@ -111,7 +117,9 @@ namespace Arcus.Testing.Tests.Integration.Messaging.Fixture
         /// </summary>
         public async Task ShouldHaveHubAsync(string eventHubName)
         {
-            Assert.True(await _namespace.GetEventHubs().ExistsAsync(eventHubName), $"Azure EventHubs hub '{eventHubName}' should be available on the namespace, but it isn't");
+            Assert.True(
+                await _namespace.GetEventHubs().ExistsAsync(eventHubName, _cancellationToken),
+                $"Azure EventHubs hub '{eventHubName}' should be available on the namespace, but it isn't");
         }
 
         /// <summary>
@@ -119,7 +127,9 @@ namespace Arcus.Testing.Tests.Integration.Messaging.Fixture
         /// </summary>
         public async Task ShouldNotHaveHubAsync(string eventHubName)
         {
-            Assert.False(await _namespace.GetEventHubs().ExistsAsync(eventHubName), $"Azure EventHubs hub '{eventHubName}' should not be available on the namespace, but it is");
+            Assert.False(
+                await _namespace.GetEventHubs().ExistsAsync(eventHubName, _cancellationToken),
+                $"Azure EventHubs hub '{eventHubName}' should not be available on the namespace, but it is");
         }
 
         /// <summary>
@@ -137,10 +147,12 @@ namespace Arcus.Testing.Tests.Integration.Messaging.Fixture
                     EventHubCollection eventHubs = _namespace.GetEventHubs();
                     foreach (var eventHubName in _eventHubNames)
                     {
+                        // ReSharper disable once MethodSupportsCancellation -- We want to attempt to delete the hub even if the cancellation token is already cancelled, as this is a fallback cleanup.
                         NullableResponse<EventHubResource> eventHub = await eventHubs.GetIfExistsAsync(eventHubName);
                         if (eventHub.HasValue && eventHub.Value != null)
                         {
                             _logger.LogDebug("[Test:Teardown] Fallback delete Azure EventHubs hub '{EventHubName}' in namespace '{Namespace}'", eventHubName, _namespace.Id.Name);
+                            // ReSharper disable once MethodSupportsCancellation -- We want to attempt to delete the hub even if the cancellation token is already cancelled, as this is a fallback cleanup.
                             await eventHub.Value.DeleteAsync(WaitUntil.Started);
                         }
                     }
@@ -161,7 +173,7 @@ namespace Arcus.Testing.Tests.Integration.Messaging.Fixture
         /// </summary>
         public static async Task ShouldHaveSingleAsync(this EventHubEventFilter filter)
         {
-            var events = await filter.ReadWith(opt => opt.MaximumWaitTime = TimeSpan.FromSeconds(10)).ToListAsync();
+            var events = await filter.ReadWith(opt => opt.MaximumWaitTime = TimeSpan.FromSeconds(10)).ToListAsync(TestContext.Current.CancellationToken);
             Assert.True(events.Count == 1, $"Azure EventHubs hub should have a single event available, but there were '{events.Count}' events");
         }
     }

@@ -20,7 +20,7 @@ ResourceIdentifier eventHubsNamespaceResourceId =
     EventHubsNamespaceResource.CreateResourceIdentifier("<subscription-id", "<resource-group>", "<namespace-name>");
 
 await using var hub = await TemporaryEventHub.CreateIfNotExistsAsync(
-    eventHubsNamespaceResourceId, consumerGroup: "$Default", "<event-hub-name>", logger);
+    eventHubsNamespaceResourceId, consumerGroup: "$Default", "<event-hub-name>", logger, CancellationToken.None);
 ```
 
 > ⚡ Uses by default the [`DefaultAzureCredential`](https://learn.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential) but supports other authentication mechanisms with overloads that take in the `EventHubsNamespaceResource` directly:
@@ -78,5 +78,5 @@ IEnumerable<PartitionEvent> events =
              })
 
              // Start searching for events.
-             .ToListAsync();
+             .ToListAsync(CancellationToken.None);
 ```

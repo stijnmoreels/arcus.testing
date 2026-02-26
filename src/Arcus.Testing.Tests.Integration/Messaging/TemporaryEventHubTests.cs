@@ -80,7 +80,8 @@ namespace Arcus.Testing.Tests.Integration.Messaging
                             RetentionTimeInHours = 1
                         };
                     });
-                });
+
+                }, TestContext.Current.CancellationToken);
         }
 
         private async Task<EventHubsTestContext> GivenEventHubNamespaceAsync()

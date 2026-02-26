@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Core;
@@ -52,6 +53,7 @@ namespace Arcus.Testing
         private readonly EventHubConsumerClient _consumerClient;
         private readonly string _eventHubName;
         private readonly bool _hubCreatedByUs, _consumerClientCreatedByUs;
+        private readonly DisposableCollection _disposables;
         private readonly ILogger _logger;
 
         private TemporaryEventHub(
@@ -71,12 +73,21 @@ namespace Arcus.Testing
             _eventHubName = eventHubName;
             _hubCreatedByUs = hubCreatedByUs;
             _logger = logger;
+            _disposables = new DisposableCollection(_logger);
         }
 
         /// <summary>
         /// Gets the filter client to search for events on the Azure Event Hubs test-managed hub (a.k.a. 'spy test fixture').
         /// </summary>
-        public EventHubEventFilter Events => new(_consumerClient);
+        /// <exception cref="ObjectDisposedException">Thrown when the test fixture was already teared down.</exception>
+        public EventHubEventFilter Events
+        {
+            get
+            {
+                ObjectDisposedException.ThrowIf(_disposables.IsDisposed, this);
+                return new(_consumerClient);
+            }
+        }
 
         /// <summary>
         /// Creates a new instance of the <see cref="TemporaryEventHub"/> which creates a new Azure Event Hub if it doesn't exist yet.
@@ -94,19 +105,22 @@ namespace Arcus.Testing
         /// <param name="consumerGroup">The name of the consumer group this consumer is associated with. Events are read in the context of this group.</param>
         /// <param name="eventHubName">The name of the specific Azure Event Hub to associate the consumer with.</param>
         /// <param name="logger">The instance to log diagnostic information during the lifetime of the test fixture.</param>
+        /// <param name="cancellationToken">The optional token to propagate notifications that the operation should be cancelled.</param>
         /// <exception cref="ArgumentNullException">
         ///     Thrown when the <paramref name="eventHubsNamespaceResourceId"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="ArgumentException">
         ///     Thrown when the <paramref name="consumerGroup"/> or the <paramref name="eventHubName"/> is blank.
         /// </exception>
+        /// <exception cref="RequestFailedException">Thrown when the interaction with Azure failed.</exception>
         public static async Task<TemporaryEventHub> CreateIfNotExistsAsync(
             ResourceIdentifier eventHubsNamespaceResourceId,
             string consumerGroup,
             string eventHubName,
-            ILogger logger)
+            ILogger logger,
+            CancellationToken cancellationToken)
         {
-            return await CreateIfNotExistsAsync(eventHubsNamespaceResourceId, consumerGroup, eventHubName, logger, configureOptions: null).ConfigureAwait(false);
+            return await CreateIfNotExistsAsync(eventHubsNamespaceResourceId, consumerGroup, eventHubName, logger, configureOptions: null, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -126,35 +140,39 @@ namespace Arcus.Testing
         /// <param name="eventHubName">The name of the specific Azure Event Hub to associate the consumer with.</param>
         /// <param name="logger">The instance to log diagnostic information during the lifetime of the test fixture.</param>
         /// <param name="configureOptions">The function to manipulate the test fixture's lifetime behavior.</param>
+        /// <param name="cancellationToken">The optional token to propagate notifications that the operation should be cancelled.</param>
         /// <exception cref="ArgumentNullException">
         ///     Thrown when the <paramref name="eventHubsNamespaceResourceId"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="ArgumentException">
         ///     Thrown when the <paramref name="consumerGroup"/> or the <paramref name="eventHubName"/> is blank.
         /// </exception>
+        /// <exception cref="RequestFailedException">Thrown when the interaction with Azure failed.</exception>
         public static async Task<TemporaryEventHub> CreateIfNotExistsAsync(
             ResourceIdentifier eventHubsNamespaceResourceId,
             string consumerGroup,
             string eventHubName,
             ILogger logger,
-            Action<TemporaryEventHubOptions> configureOptions)
+            Action<TemporaryEventHubOptions> configureOptions,
+            CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(eventHubsNamespaceResourceId);
             ArgumentException.ThrowIfNullOrWhiteSpace(consumerGroup);
+            cancellationToken.ThrowIfCancellationRequested();
 
             var credential = new DefaultAzureCredential();
             var arm = new ArmClient(credential);
 
             EventHubsNamespaceResource resource =
                 await arm.GetEventHubsNamespaceResource(eventHubsNamespaceResourceId)
-                         .GetAsync()
+                         .GetAsync(cancellationToken)
                          .ConfigureAwait(false);
 
 #pragma warning disable CA2000 // Responsibility of disposing the client is transferred to the test fixture instance.
             var consumerClient = new EventHubConsumerClient(consumerGroup, resource.Data.ServiceBusEndpoint, eventHubName, credential);
 #pragma warning restore CA2000
 
-            return await CreateIfNotExistsAsync(resource, consumerClient, consumerClientCreatedByUs: true, eventHubName, logger, configureOptions).ConfigureAwait(false);
+            return await CreateIfNotExistsAsync(resource, consumerClient, consumerClientCreatedByUs: true, eventHubName, logger, configureOptions, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -177,17 +195,20 @@ namespace Arcus.Testing
         /// <param name="consumerClient">The client to read events from the test-managed Azure Event Hub.</param>
         /// <param name="eventHubName">The name of the specific Azure Event Hub to associate the consumer with.</param>
         /// <param name="logger">The instance to log diagnostic information during the lifetime of the test fixture.</param>
+        /// <param name="cancellationToken">The optional token to propagate notifications that the operation should be cancelled.</param>
         /// <exception cref="ArgumentNullException">
         ///     Thrown when the <paramref name="eventHubsNamespace"/> or <paramref name="consumerClient"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="eventHubName"/> is blank.</exception>
+        /// <exception cref="RequestFailedException">Thrown when the interaction with Azure failed.</exception>
         public static Task<TemporaryEventHub> CreateIfNotExistsAsync(
             EventHubsNamespaceResource eventHubsNamespace,
             EventHubConsumerClient consumerClient,
             string eventHubName,
-            ILogger logger)
+            ILogger logger,
+            CancellationToken cancellationToken)
         {
-            return CreateIfNotExistsAsync(eventHubsNamespace, consumerClient, eventHubName, logger, configureOptions: null);
+            return CreateIfNotExistsAsync(eventHubsNamespace, consumerClient, eventHubName, logger, configureOptions: null, cancellationToken);
         }
 
         /// <summary>
@@ -211,18 +232,21 @@ namespace Arcus.Testing
         /// <param name="eventHubName">The name of the specific Azure Event Hub to associate the consumer with.</param>
         /// <param name="logger">The instance to log diagnostic information during the lifetime of the test fixture.</param>
         /// <param name="configureOptions">The function to manipulate the test fixture's lifetime behavior.</param>
+        /// <param name="cancellationToken">The optional token to propagate notifications that the operation should be cancelled.</param>
         /// <exception cref="ArgumentNullException">
         ///     Thrown when the <paramref name="eventHubsNamespace"/> or <paramref name="consumerClient"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="eventHubName"/> is blank.</exception>
+        /// <exception cref="RequestFailedException">Thrown when the interaction with Azure failed.</exception>
         public static Task<TemporaryEventHub> CreateIfNotExistsAsync(
             EventHubsNamespaceResource eventHubsNamespace,
             EventHubConsumerClient consumerClient,
             string eventHubName,
             ILogger logger,
-            Action<TemporaryEventHubOptions> configureOptions)
+            Action<TemporaryEventHubOptions> configureOptions,
+            CancellationToken cancellationToken)
         {
-            return CreateIfNotExistsAsync(eventHubsNamespace, consumerClient, consumerClientCreatedByUs: false, eventHubName, logger, configureOptions);
+            return CreateIfNotExistsAsync(eventHubsNamespace, consumerClient, consumerClientCreatedByUs: false, eventHubName, logger, configureOptions, cancellationToken);
         }
 
         private static async Task<TemporaryEventHub> CreateIfNotExistsAsync(
@@ -231,18 +255,20 @@ namespace Arcus.Testing
             bool consumerClientCreatedByUs,
             string eventHubName,
             ILogger logger,
-            Action<TemporaryEventHubOptions> configureOptions)
+            Action<TemporaryEventHubOptions> configureOptions,
+            CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(eventHubsNamespace);
             ArgumentNullException.ThrowIfNull(consumerClient);
             ArgumentException.ThrowIfNullOrWhiteSpace(eventHubName);
+            cancellationToken.ThrowIfCancellationRequested();
             logger ??= NullLogger.Instance;
 
             var options = new TemporaryEventHubOptions();
             configureOptions?.Invoke(options);
 
             EventHubCollection eventHubs = eventHubsNamespace.GetEventHubs();
-            if (await eventHubs.ExistsAsync(eventHubName).ConfigureAwait(false))
+            if (await eventHubs.ExistsAsync(eventHubName, cancellationToken).ConfigureAwait(false))
             {
                 logger.LogSetupUseExistingHub(eventHubName, eventHubsNamespace.Id.Name);
 
@@ -250,7 +276,7 @@ namespace Arcus.Testing
             }
 
             logger.LogSetupCreateNewHub(eventHubName, eventHubsNamespace.Id.Name);
-            await eventHubs.CreateOrUpdateAsync(WaitUntil.Completed, eventHubName, options.OnSetup.EventHubData).ConfigureAwait(false);
+            await eventHubs.CreateOrUpdateAsync(WaitUntil.Completed, eventHubName, options.OnSetup.EventHubData, cancellationToken).ConfigureAwait(false);
 
             return new TemporaryEventHub(eventHubsNamespace, consumerClient, consumerClientCreatedByUs, eventHubName, hubCreatedByUs: true, logger);
         }
@@ -261,12 +287,16 @@ namespace Arcus.Testing
         /// <returns>A task that represents the asynchronous dispose operation.</returns>
         public async ValueTask DisposeAsync()
         {
-            var disposables = new DisposableCollection(_logger);
-            await using (disposables.ConfigureAwait(false))
+            if (_disposables.IsDisposed)
+            {
+                return;
+            }
+
+            await using (_disposables.ConfigureAwait(false))
             {
                 if (_hubCreatedByUs)
                 {
-                    disposables.Add(AsyncDisposable.Create(async () =>
+                    _disposables.Add(AsyncDisposable.Create(async () =>
                     {
                         NullableResponse<EventHubResource> eventHub =
                             await _eventHubsNamespace.GetEventHubs()
@@ -283,7 +313,7 @@ namespace Arcus.Testing
 
                 if (_consumerClientCreatedByUs)
                 {
-                    disposables.Add(_consumerClient);
+                    _disposables.Add(_consumerClient);
                 }
             }
 

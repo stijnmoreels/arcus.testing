@@ -36,13 +36,10 @@ namespace Arcus.Testing
         /// <exception cref="ArgumentException">Thrown when the <paramref name="partitionId"/> is blank.</exception>
         public EventHubEventFilter FromPartition(string partitionId, EventPosition startingPosition)
         {
-            if (string.IsNullOrWhiteSpace(partitionId))
-            {
-                throw new ArgumentException("Requires a non-blank partition ID to search for events on an Azure Event Hub", nameof(partitionId));
-            }
-
+            ArgumentException.ThrowIfNullOrWhiteSpace(partitionId);
             _partitionId = partitionId;
             _startingPosition = startingPosition;
+
             return this;
         }
 
@@ -91,22 +88,11 @@ namespace Arcus.Testing
         }
 
         /// <summary>
-        /// Gets the awaiter used to await the <see cref="ToListAsync()"/>.
+        /// Gets the awaiter used to await the <see cref="ToListAsync(CancellationToken)"/>.
         /// </summary>
         public TaskAwaiter<IReadOnlyList<PartitionEvent>> GetAwaiter()
         {
-            return ToListAsync().GetAwaiter();
-        }
-
-        /// <summary>
-        /// Determines whether the configured Azure Event Hub contains any matching events.
-        /// </summary>
-        /// <returns>
-        ///     <see langword="true" /> if any events are found that matches the previously configured predicates; otherwise, <see langword="false" />.
-        /// </returns>
-        public async Task<bool> AnyAsync()
-        {
-            return await AnyAsync(CancellationToken.None).ConfigureAwait(false);
+            return ToListAsync(CancellationToken.None).GetAwaiter();
         }
 
         /// <summary>
@@ -118,16 +104,10 @@ namespace Arcus.Testing
         /// </returns>
         public async Task<bool> AnyAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var events = await ToListAsync(cancellationToken).ConfigureAwait(false);
             return events.Count > 0;
-        }
-
-        /// <summary>
-        /// Collects all events currently matching on the configured Azure Event Hub into a <see cref="List{T}"/>.
-        /// </summary>
-        public async Task<IReadOnlyList<PartitionEvent>> ToListAsync()
-        {
-            return await ToListAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -136,6 +116,8 @@ namespace Arcus.Testing
         /// <param name="cancellationToken">An optional <see cref="CancellationToken" /> instance to signal the request to cancel the operation.</param>
         public async Task<IReadOnlyList<PartitionEvent>> ToListAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             IAsyncEnumerable<PartitionEvent> reading =
                 _partitionId is null
                     ? _client.ReadEventsAsync(_options, cancellationToken)
