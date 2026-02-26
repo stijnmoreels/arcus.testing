@@ -86,7 +86,7 @@ namespace Arcus.Testing.Tests.Integration.Messaging
 
         private async Task<EventHubsTestContext> GivenEventHubNamespaceAsync()
         {
-            return await EventHubsTestContext.GivenAsync(Configuration, Logger);
+            return await EventHubsTestContext.GivenAsync(Configuration, Logger, TestContext.Current.CancellationToken);
         }
     }
 }
