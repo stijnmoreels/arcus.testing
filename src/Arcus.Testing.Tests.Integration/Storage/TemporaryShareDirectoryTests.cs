@@ -321,7 +321,7 @@ namespace Arcus.Testing.Tests.Integration.Storage
             _logger.LogTrace("[Test] Upload new Azure File share item '{FileName}' in directory '{AccountName}/{DirectoryPath}'", fileName, directoryClient.AccountName, directoryClient.Path);
 
             await using var contents = BinaryData.FromString(fileContents).ToStream();
-            FileClient fileClient = await directoryClient.CreateFileAsync(fileName, contents.Length, cancellationToken: _cancellationToken)
+            FileClient fileClient = await directoryClient.CreateFileAsync(fileName, contents.Length, cancellationToken: _cancellationToken);
             await fileClient.UploadAsync(contents, cancellationToken: _cancellationToken);
 
             return fileClient;
