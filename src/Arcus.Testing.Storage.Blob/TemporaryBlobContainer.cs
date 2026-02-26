@@ -442,6 +442,7 @@ namespace Arcus.Testing
 
         private static async Task<bool> EnsureContainerCreatedAsync(BlobContainerClient containerClient, ILogger logger, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             bool createdByUs = false;
             if (!await containerClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -554,6 +555,7 @@ namespace Arcus.Testing
             ILogger logger,
             CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (options.OnSetup.Blobs is OnSetupContainer.LeaveExisted)
             {
                 return;

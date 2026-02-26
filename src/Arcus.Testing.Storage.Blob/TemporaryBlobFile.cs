@@ -209,6 +209,7 @@ namespace Arcus.Testing
             ILogger logger,
             CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (await client.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 BlobDownloadResult originalContent = await client.DownloadContentAsync(cancellationToken).ConfigureAwait(false);
