@@ -34,7 +34,7 @@ await using var collection = await TemporaryMongoDbCollection.CreateIfNotExistsA
     "<database-name>",
     "<collection-name>",
     logger,
-    CancellationToken.None);
+    cancellationToken);
 
 // Interact with the collection during the lifetime of the fixture.
 IMongoCollection<Shipment> client = collection.GetCollectionClient<Shipment>();
@@ -49,7 +49,7 @@ using Arcus.Testing;
 
 await using TemporaryMongoDbCollection collection = ...
 
-await collection.UpsertDocumentAsync(new Shipment { BoatName = "The Alice"  }, CancellationToken.None);
+await collection.UpsertDocumentAsync(new Shipment { BoatName = "The Alice"  }, cancellationToken);
 ```
 
 :::praise
@@ -126,7 +126,7 @@ await using var document = await TemporaryMongoDbDocument.UpsertDocumentAsync(
     "<collection-name>",
     shipment,
     logger,
-    CancellationToken.None);
+    cancellationToken);
 
 BsonValue documentId = document.Id;
 ```
@@ -165,7 +165,7 @@ await using var container = await TemporaryNoSqlContainer.CreateIfNotExistsAsync
     "<container-name>",
     "/partition-key-path",
     logger,
-    CancellationToken.None);
+    cancellationToken);
 
 // Interact with the container during the lifetime of the fixture.
 Container client = container.Client;
@@ -180,7 +180,7 @@ using Arcus.Testing;
 
 await using TemporaryNoSqlContainer container = ...
 
-await container.UpsertItemAsync(new Shipment { Id = "123", BoatName = "The Alice" }, CancellationToken.None);
+await container.UpsertItemAsync(new Shipment { Id = "123", BoatName = "The Alice" }, cancellationToken);
 ```
 
 :::praise
@@ -245,7 +245,7 @@ Container containerClient = ...
 var shipment = new Shipment { Id = "123", BoatName = "The Alice" };
 
 await using var item = await TemporaryNoSqlItem.UpsertItemAsync(
-    containerClient, shipment, logger, CancellationToken.None);
+    containerClient, shipment, logger, cancellationToken);
 
 string itemId = item.Id;
 PartitionKey partitionKey = item.PartitionKey;
