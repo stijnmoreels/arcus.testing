@@ -372,7 +372,9 @@ namespace Arcus.Testing
     {
         private readonly ServiceBusAdministrationClient _adminClient;
         private readonly ServiceBusClient _messagingClient;
+#pragma warning disable CA2213 // The sender is disposed via the `DisposableCollection`.
         private readonly ServiceBusSender _sender;
+#pragma warning restore CA2213
 
         private readonly bool _queueCreatedByUs, _messagingClientCreatedByUs;
         private readonly TemporaryQueueOptions _options;
@@ -739,21 +741,21 @@ namespace Arcus.Testing
 
             await using (_disposables.ConfigureAwait(false))
             {
-                if (await _adminClient.QueueExistsAsync(Name).ConfigureAwait(false))
+                _disposables.Add(AsyncDisposable.Create(async () =>
                 {
-                    if (_queueCreatedByUs)
+                    if (await _adminClient.QueueExistsAsync(Name).ConfigureAwait(false))
                     {
-                        _disposables.Add(AsyncDisposable.Create(async () =>
+                        if (_queueCreatedByUs)
                         {
                             _logger.LogTeardownDeleteQueue(Name, FullyQualifiedNamespace);
                             await _adminClient.DeleteQueueAsync(Name).ConfigureAwait(false);
-                        }));
+                        }
+                        else
+                        {
+                            await CleanOnTeardownAsync().ConfigureAwait(false);
+                        }
                     }
-                    else
-                    {
-                        _disposables.Add(AsyncDisposable.Create(CleanOnTeardownAsync));
-                    }
-                }
+                }));
 
                 _disposables.Add(_sender);
                 if (_messagingClientCreatedByUs)
