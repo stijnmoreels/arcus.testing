@@ -114,8 +114,9 @@ namespace Arcus.Testing.Tests.Integration.Storage.Fixture
             _logger.LogTrace("[Test] create MongoDb collection '{CollectionName}' outside the fixture's scope", collectionName);
 
             await WhenMongoDbAvailableAsync(
-                () => Database.CreateCollectionAsync(collectionName, cancellationToken: _cancellationToken),
-                $"[Test] cannot create MongoDb collection '{collectionName}' outside the fixture's scope, due to a high-rate failure");
+                cancellationToken => Database.CreateCollectionAsync(collectionName, cancellationToken: cancellationToken),
+                $"[Test] cannot create MongoDb collection '{collectionName}' outside the fixture's scope, due to a high-rate failure",
+                _cancellationToken);
 
             return collectionName;
         }
@@ -125,14 +126,18 @@ namespace Arcus.Testing.Tests.Integration.Storage.Fixture
         /// </summary>
         /// <param name="mongoDbOperationAsync">The operation to run against a MongoDb database.</param>
         /// <param name="errorMessage">The custom user message that describes the <paramref name="mongoDbOperationAsync"/>.</param>
-        internal static async Task WhenMongoDbAvailableAsync(Func<CancellationToken, Task> mongoDbOperationAsync, string errorMessage)
+        /// <param name="cancellationToken">The optional token to propagate notifications that the operation should be cancelled.</param>
+        internal static async Task WhenMongoDbAvailableAsync(
+            Func<CancellationToken, Task> mongoDbOperationAsync,
+            string errorMessage,
+            CancellationToken cancellationToken)
         {
-            await WhenMongoDbAvailableAsync(async cancellationToken =>
+            await WhenMongoDbAvailableAsync(async token =>
             {
-                await mongoDbOperationAsync(cancellationToken);
+                await mongoDbOperationAsync(token);
                 return 0;
 
-            }, errorMessage);
+            }, errorMessage, cancellationToken);
         }
 
         /// <summary>
@@ -140,9 +145,14 @@ namespace Arcus.Testing.Tests.Integration.Storage.Fixture
         /// </summary>
         /// <param name="mongoDbOperationAsync">The operation to run against a MongoDb database.</param>
         /// <param name="errorMessage">The custom user message that describes the <paramref name="mongoDbOperationAsync"/>.</param>
-        internal static async Task<TResult> WhenMongoDbAvailableAsync<TResult>(Func<CancellationToken, Task<TResult>> mongoDbOperationAsync, string errorMessage)
+        /// <param name="cancellationToken">The optional token to propagate notifications that the operation should be cancelled.</param>
+        internal static async Task<TResult> WhenMongoDbAvailableAsync<TResult>(
+            Func<CancellationToken, Task<TResult>> mongoDbOperationAsync,
+            string errorMessage,
+            CancellationToken cancellationToken)
         {
-            return await Poll.Target<TResult, MongoCommandException>(() => mongoDbOperationAsync(TestContext.Current.CancellationToken))
+            cancellationToken.ThrowIfCancellationRequested();
+            return await Poll.Target<TResult, MongoCommandException>(() => mongoDbOperationAsync(cancellationToken))
                              .When(ex => ex.Message.Contains("high rate") || ex.ErrorMessage.Contains("high rate"))
                              .Every(TimeSpan.FromMilliseconds(500))
                              .FailWith(errorMessage);

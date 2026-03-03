@@ -119,7 +119,7 @@ namespace Arcus.Testing
         /// <summary>
         /// (default for cleaning documents) Configures the <see cref="TemporaryMongoDbCollection"/> to only delete the MongoBb documents
         /// in an Azure Cosmos DB for MongoDB collection upon disposal if the document was inserted by the test fixture
-        /// (using <see cref="TemporaryMongoDbCollection.UpsertDocumentAsync{TDocument}"/>).
+        /// (using <see cref="TemporaryMongoDbCollection.UpsertDocumentAsync{TDocument}(TDocument,CancellationToken)"/>).
         /// </summary>
         [Obsolete("Will be removed in v3, please use the " + nameof(CleanUpsertedDocuments) + "instead that provides exactly the same functionality", DiagnosticId = ObsoleteDefaults.DiagnosticId)]
         public OnTeardownMongoDbCollectionOptions CleanCreatedDocuments()
@@ -130,7 +130,7 @@ namespace Arcus.Testing
         /// <summary>
         /// (default for cleaning documents) Configures the <see cref="TemporaryMongoDbCollection"/> to only delete or revert the MongoDB documents
         /// in an Azure Cosmos DB for MongoDB collection upon disposal if the document was upserted by the test fixture
-        /// (using <see cref="TemporaryMongoDbCollection.UpsertDocumentAsync{TDocument}"/>).
+        /// (using <see cref="TemporaryMongoDbCollection.UpsertDocumentAsync{TDocument}(TDocument,CancellationToken)"/>).
         /// </summary>
         public OnTeardownMongoDbCollectionOptions CleanUpsertedDocuments()
         {

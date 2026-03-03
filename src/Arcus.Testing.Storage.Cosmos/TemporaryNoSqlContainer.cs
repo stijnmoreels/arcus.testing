@@ -189,7 +189,7 @@ namespace Arcus.Testing
 
         /// <summary>
         /// (default for cleaning items) Configures the <see cref="TemporaryNoSqlContainer"/> to only delete or revert the NoSQL items
-        /// in an Azure Cosmos DB for NoSQL container upon disposal if the item was upserted by the test fixture (using <see cref="TemporaryNoSqlContainer.UpsertItemAsync{TItem}"/>).
+        /// in an Azure Cosmos DB for NoSQL container upon disposal if the item was upserted by the test fixture (using <see cref="TemporaryNoSqlContainer.UpsertItemAsync{TItem}(TItem,CancellationToken)"/>).
         /// </summary>
         public OnTeardownNoSqlContainerOptions CleanUpsertedItems()
         {

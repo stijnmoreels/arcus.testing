@@ -246,7 +246,8 @@ namespace Arcus.Testing.Tests.Integration.Storage
                 Assert.Equal(collectionName, collection.Name);
                 return collection;
 
-            }, $"Cannot create temporary MongoDb fixture collection '{collectionName}', due to a high-rate failure");
+            }, $"Cannot create temporary MongoDb fixture collection '{collectionName}', due to a high-rate failure",
+                TestContext.Current.CancellationToken);
         }
 
         private async Task<MongoDbTestContext> GivenCosmosMongoDbAsync()
